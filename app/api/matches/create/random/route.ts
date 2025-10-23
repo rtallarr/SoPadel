@@ -16,15 +16,14 @@ function formatDateForPG(date: Date) {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
-// Get Wednesday of current week
-function getWednesdayOfWeek(): Date {
+function getTuesdayOfWeek(): Date {
   const now = new Date();
   const day = now.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
-  const diff = 3 - day;
-  const wed = new Date(now);
-  wed.setDate(now.getDate() + diff);
-  wed.setHours(0, 0, 0, 0);
-  return wed;
+  const diff = 2 - day;
+  const tue = new Date(now);
+  tue.setDate(now.getDate() + diff);
+  tue.setHours(0, 0, 0, 0);
+  return tue;
 }
 
 export async function POST(req: Request) {
@@ -38,12 +37,12 @@ export async function POST(req: Request) {
     }
 
     // Schedule times
-    const wed = getWednesdayOfWeek();
+    const tue = getTuesdayOfWeek();
     const times = [0, 45];
 
     for (const mins of times) {
       const shuffled = shuffle(players);
-      const matchDate = new Date(wed);
+      const matchDate = new Date(tue);
       matchDate.setHours(19, mins, 0, 0);
       const matchDateStr = formatDateForPG(matchDate);
       for (let i = 0; i + 3 < shuffled.length; i += 4) {
