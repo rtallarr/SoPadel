@@ -29,6 +29,17 @@ export default function Home() {
     })();
   }, []);
 
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "";
+    const d = new Date(dateString);
+    return d.toLocaleString("es-CL", {
+      day: "2-digit",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   return (
     <main className="min-h-screen bg-gray-900 text-gray-100 p-6">
       <h1 className="text-3xl font-bold text-center mb-8 text-white">
@@ -57,8 +68,14 @@ export default function Home() {
             return (
               <div
                 key={match.id}
-                className="bg-gray-800 rounded-2xl shadow-lg p-5 flex flex-col items-center"
+                className="relative bg-gray-800 rounded-2xl shadow-lg p-5 flex flex-col items-center"
               >
+                {/* Date top-right */}
+                
+                <span className="absolute top-3 right-4 text-sm text-gray-400">
+                  {formatDate(match.date)}
+                </span>
+                
                 <h2 className="font-semibold text-lg text-white mb-3">
                   Partido #{match.id}
                 </h2>
@@ -67,13 +84,13 @@ export default function Home() {
                 <div className="flex flex-col gap-3 w-full">
                   <div className={`p-3 border-2 rounded-xl ${team1Border}`}>
                     <p className="font-medium text-center text-white">
-                      {match.team1_player1} + {match.team1_player2}
+                      {match.team1_player1} & {match.team1_player2}
                     </p>
                   </div>
 
                   <div className={`p-3 border-2 rounded-xl ${team2Border}`}>
                     <p className="font-medium text-center text-white">
-                      {match.team2_player1} + {match.team2_player2}
+                      {match.team2_player1} & {match.team2_player2}
                     </p>
                   </div>
                 </div>
