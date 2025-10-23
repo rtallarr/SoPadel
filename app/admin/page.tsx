@@ -14,6 +14,16 @@ export default function Admin() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [playersInput, setPlayersInput] = useState("");
 
+  const fetchMatches = async () => {
+    const res = await fetch("/api/matches");
+    const data = await res.json();
+    setMatches(data);
+  };
+
+  useEffect(() => {
+    fetchMatches();
+  }, []);
+
   const handleCreateRandomMatches = async () => {
     const players = playersInput
         .split("\n")
@@ -30,16 +40,6 @@ export default function Admin() {
     fetchMatches();
   };
 
-  const fetchMatches = async () => {
-    const res = await fetch("/api/matches");
-    const data = await res.json();
-    setMatches(data);
-  };
-
-  useEffect(() => {
-    fetchMatches();
-  }, []);
-
   const handleDeleteMatch = async (id: number) => {
     await fetch("/api/matches", {
       method: "DELETE",
@@ -47,18 +47,6 @@ export default function Admin() {
       body: JSON.stringify({ id }),
     });
     fetchMatches();
-  };
-
-  const formatDate = (dateStr?: string) => {
-    if (!dateStr) return "";
-    const date = new Date(dateStr);
-    return date.toLocaleString("es-CL", {
-      weekday: "short",
-      hour: "2-digit",
-      minute: "2-digit",
-      day: "2-digit",
-      month: "short",
-    });
   };
 
   return (
