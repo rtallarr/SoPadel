@@ -33,7 +33,7 @@ export default function Home() {
 
   useEffect(() => {
     (async () => {
-      const res = await fetch("/api/matches");
+      const res = await fetch("/api/matches/get/all");
       const data = await res.json();
       setMatches(data);
     })();
