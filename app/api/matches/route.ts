@@ -45,14 +45,7 @@ export async function PATCH(req: Request) {
       team1_player1,
       team1_player2,
       team2_player1,
-      team2_player2,
-      sets1_1,
-      sets2_1,
-      sets1_2,
-      sets2_2,
-      sets1_3,
-      sets2_3,
-      winner_team
+      team2_player2
     } = body;
 
     if (!id) {
@@ -65,14 +58,7 @@ export async function PATCH(req: Request) {
         team1_player1 = ${team1_player1},
         team1_player2 = ${team1_player2},
         team2_player1 = ${team2_player1},
-        team2_player2 = ${team2_player2},
-        sets1_1 = ${sets1_1},
-        sets2_1 = ${sets2_1},
-        sets1_2 = ${sets1_2},
-        sets2_2 = ${sets2_2},
-        sets1_3 = ${sets1_3},
-        sets2_3 = ${sets2_3},
-        winner_team = ${winner_team}
+        team2_player2 = ${team2_player2}
       WHERE id = ${id}
     `;
 
