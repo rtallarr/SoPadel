@@ -1,6 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from "@hello-pangea/dnd";
 
 type Match = {
   id: number;
@@ -14,7 +20,6 @@ type Match = {
 export default function Admin() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [playersInput, setPlayersInput] = useState("");
-  const [editingMatch, setEditingMatch] = useState<Match | null>(null);
 
   const fetchMatches = async () => {
     const res = await fetch("/api/matches");
@@ -51,21 +56,66 @@ export default function Admin() {
     fetchMatches();
   };
 
-  const handleEditMatch = (match: Match) => {
-    setEditingMatch(match);
-  };
+  const handleDragEnd = async (result: DropResult) => {
+    if (!result.destination) return;
 
-  const handleSaveEdit = async () => {
-    if (!editingMatch) return;
+    const sourceId = result.source.droppableId; // e.g. match-1-team1-0
+    const destId = result.destination.droppableId;
 
+    if (sourceId === destId) return;
+
+    const [_, sourceMatchId, sourceTeam, sourceSlot] = sourceId.split("-");
+    const [__, destMatchId, destTeam, destSlot] = destId.split("-");
+
+    const sourceMatchIndex = matches.findIndex(
+      (m) => m.id === Number(sourceMatchId)
+    );
+    const destMatchIndex = matches.findIndex(
+      (m) => m.id === Number(destMatchId)
+    );
+
+    if (sourceMatchIndex === -1 || destMatchIndex === -1) return;
+
+    const updatedMatches = [...matches];
+    const sourceMatch = { ...updatedMatches[sourceMatchIndex] };
+    const destMatch =
+      sourceMatchId === destMatchId
+        ? sourceMatch
+        : { ...updatedMatches[destMatchIndex] };
+
+    type PlayerKey =
+      | "team1_player1"
+      | "team1_player2"
+      | "team2_player1"
+      | "team2_player2";
+
+    const sourceKey = `${sourceTeam}_player${Number(sourceSlot) + 1}` as PlayerKey;
+    const destKey = `${destTeam}_player${Number(destSlot) + 1}` as PlayerKey;
+
+    // swap players
+    const temp = sourceMatch[sourceKey];
+    sourceMatch[sourceKey] = destMatch[destKey];
+    destMatch[destKey] = temp;
+
+    updatedMatches[sourceMatchIndex] = sourceMatch;
+    updatedMatches[destMatchIndex] = destMatch;
+
+    setMatches(updatedMatches);
+
+    // Persist both matches if they differ
     await fetch("/api/matches", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editingMatch),
+      body: JSON.stringify(sourceMatch),
     });
 
-    setEditingMatch(null);
-    fetchMatches();
+    if (sourceMatchId !== destMatchId) {
+      await fetch("/api/matches", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(destMatch),
+      });
+    }
   };
 
   const formatDate = (dateString?: string) => {
@@ -109,90 +159,9 @@ export default function Admin() {
       {matches.length === 0 ? (
         <p className="text-center text-gray-300">No hay partidos todavía.</p>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {matches.map((match) =>
-            editingMatch?.id === match.id ? (
-              <div
-                key={match.id}
-                className="bg-gray-800 rounded-2xl shadow-lg p-5 flex flex-col gap-3"
-              >
-                <h2 className="font-semibold text-lg text-white text-center">
-                  ✏️ Editar Partido #{match.id}
-                </h2>
-
-                {/* Team 1 vs Team 2 layout */}
-                <div className="flex flex-col gap-2 text-sm">
-                  <div className="bg-gray-700/40 p-3 rounded-xl">
-                    <div className="flex flex-col gap-2">
-                      <input
-                        className="bg-gray-700 text-white p-2 rounded-md w-full"
-                        value={editingMatch.team1_player1}
-                        onChange={(e) =>
-                          setEditingMatch({
-                            ...editingMatch,
-                            team1_player1: e.target.value,
-                          })
-                        }
-                        placeholder="Jugador 1"
-                      />
-                      <input
-                        className="bg-gray-700 text-white p-2 rounded-md w-full"
-                        value={editingMatch.team1_player2}
-                        onChange={(e) =>
-                          setEditingMatch({
-                            ...editingMatch,
-                            team1_player2: e.target.value,
-                          })
-                        }
-                        placeholder="Jugador 2"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="bg-gray-700/40 p-3 rounded-xl">
-                    <div className="flex flex-col gap-2">
-                      <input
-                        className="bg-gray-700 text-white p-2 rounded-md w-full"
-                        value={editingMatch.team2_player1}
-                        onChange={(e) =>
-                          setEditingMatch({
-                            ...editingMatch,
-                            team2_player1: e.target.value,
-                          })
-                        }
-                        placeholder="Jugador 1"
-                      />
-                      <input
-                        className="bg-gray-700 text-white p-2 rounded-md w-full"
-                        value={editingMatch.team2_player2}
-                        onChange={(e) =>
-                          setEditingMatch({
-                            ...editingMatch,
-                            team2_player2: e.target.value,
-                          })
-                        }
-                        placeholder="Jugador 2"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex justify-between mt-4">
-                  <button
-                    onClick={handleSaveEdit}
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-4 rounded-md"
-                  >
-                    Guardar
-                  </button>
-                  <button
-                    onClick={() => setEditingMatch(null)}
-                    className="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-1 px-4 rounded-md"
-                  >
-                    Cancelar
-                  </button>
-                </div>
-              </div>
-            ) : (
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {matches.map((match) => (
               <div
                 key={match.id}
                 className="relative bg-gray-800 rounded-2xl shadow-lg p-5 pb-10 flex flex-col items-center"
@@ -204,39 +173,71 @@ export default function Admin() {
                   <h2 className="font-semibold text-lg text-white">
                     Partido #{match.id}
                   </h2>
-                  <div className="flex gap-2">
-                    <button
-                      className="text-blue-400 hover:text-blue-500 text-sm"
-                      onClick={() => handleEditMatch(match)}
-                    >
-                      ✏ Editar
-                    </button>
-                    <button
-                      className="text-red-400 hover:text-red-500 text-sm"
-                      onClick={() => handleDeleteMatch(match.id)}
-                    >
-                      ✖ Eliminar
-                    </button>
-                  </div>
+                  <button
+                    className="text-red-400 hover:text-red-500 text-sm"
+                    onClick={() => handleDeleteMatch(match.id)}
+                  >
+                    ✖ Eliminar
+                  </button>
                 </div>
 
                 <div className="flex flex-col gap-3 w-full">
-                  <div className="p-3 border-2 border-gray-600 rounded-xl">
-                    <p className="font-medium text-center text-white">
-                      {match.team1_player1} & {match.team1_player2}
-                    </p>
-                  </div>
-
-                  <div className="p-3 border-2 border-gray-600 rounded-xl">
-                    <p className="font-medium text-center text-white">
-                      {match.team2_player1} & {match.team2_player2}
-                    </p>
-                  </div>
+                  {["team1", "team2"].map((team, tIndex) => (
+                    <Droppable
+                      key={`${match.id}-${team}`}
+                      droppableId={`match-${match.id}-${team}-${tIndex}`}
+                    >
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.droppableProps}
+                          className="p-3 border-2 border-gray-600 rounded-xl min-h-[70px] flex flex-col gap-2"
+                        >
+                          {[1, 2].map((num, i) => {
+                            const playerKey = `${team}_player${num}` as keyof Match;
+                            const player = match[playerKey];
+                            const droppableId = `match-${match.id}-${team}-${i}`;
+                            return (
+                              <Droppable
+                                key={droppableId}
+                                droppableId={droppableId}
+                              >
+                                {(innerProvided) => (
+                                  <div
+                                    ref={innerProvided.innerRef}
+                                    {...innerProvided.droppableProps}
+                                  >
+                                    <Draggable
+                                      draggableId={droppableId}
+                                      index={0}
+                                    >
+                                      {(dragProvided) => (
+                                        <div
+                                          ref={dragProvided.innerRef}
+                                          {...dragProvided.draggableProps}
+                                          {...dragProvided.dragHandleProps}
+                                          className="bg-gray-700 text-white p-2 rounded-md text-center cursor-move select-none"
+                                        >
+                                          {player}
+                                        </div>
+                                      )}
+                                    </Draggable>
+                                    {innerProvided.placeholder}
+                                  </div>
+                                )}
+                              </Droppable>
+                            );
+                          })}
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Droppable>
+                  ))}
                 </div>
               </div>
-            )
-          )}
-        </div>
+            ))}
+          </div>
+        </DragDropContext>
       )}
     </main>
   );
