@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@vercel/postgres";
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
-  const matchId = Number(params.id);
-  console.log(request);
+export async function POST(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  const { id } = await context.params;
+  const matchId = Number(id);
+
   try {
     const { sets1_1, sets1_2, sets1_3, sets2_1, sets2_2, sets2_3 } = await request.json();
 
@@ -50,6 +54,9 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     return NextResponse.json({ message: "Match updated successfully" });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "Failed to update match" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update match" },
+      { status: 500 }
+    );
   }
 }

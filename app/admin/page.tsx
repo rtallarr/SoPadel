@@ -213,7 +213,7 @@ export default function Admin() {
                                       {...dragProvided.dragHandleProps}
                                       className={`p-2 text-center font-medium cursor-grab rounded-md transition select-none ${
                                         dragSnapshot.isDragging
-                                          ? "bg-blue-500 text-white scale-105 shadow-lg"
+                                          ? "bg-blue-500 text-white scale-105 shadow-lg w-full text-center"
                                           : "bg-gray-700 text-white"
                                       }`}
                                     >
