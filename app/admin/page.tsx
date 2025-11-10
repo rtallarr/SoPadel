@@ -8,6 +8,12 @@ import {
   DropResult,
 } from "@hello-pangea/dnd";
 
+type PlayerKey =
+  | "team1_player1"
+  | "team1_player2"
+  | "team2_player1"
+  | "team2_player2";
+
 type Match = {
   id: number;
   team1_player1: string;
@@ -59,13 +65,12 @@ export default function Admin() {
   const handleDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
 
-    const sourceId = result.source.droppableId; // e.g. match-1-team1-0
-    const destId = result.destination.droppableId;
+    const { source, destination } = result;
+    if (source.droppableId === destination.droppableId) return;
 
-    if (sourceId === destId) return;
-
-    const [_, sourceMatchId, sourceTeam, sourceSlot] = sourceId.split("-");
-    const [__, destMatchId, destTeam, destSlot] = destId.split("-");
+    const [sourceMatchId, sourceTeam, sourceNum] =
+      source.droppableId.split("-");
+    const [destMatchId, destTeam, destNum] = destination.droppableId.split("-");
 
     const sourceMatchIndex = matches.findIndex(
       (m) => m.id === Number(sourceMatchId)
@@ -83,26 +88,17 @@ export default function Admin() {
         ? sourceMatch
         : { ...updatedMatches[destMatchIndex] };
 
-    type PlayerKey =
-      | "team1_player1"
-      | "team1_player2"
-      | "team2_player1"
-      | "team2_player2";
+    const sourceKey = `${sourceTeam}_player${Number(sourceNum) + 1}` as PlayerKey;
+    const destKey = `${destTeam}_player${Number(destNum) + 1}` as PlayerKey;
 
-    const sourceKey = `${sourceTeam}_player${Number(sourceSlot) + 1}` as PlayerKey;
-    const destKey = `${destTeam}_player${Number(destSlot) + 1}` as PlayerKey;
-
-    // swap players
     const temp = sourceMatch[sourceKey];
     sourceMatch[sourceKey] = destMatch[destKey];
     destMatch[destKey] = temp;
 
     updatedMatches[sourceMatchIndex] = sourceMatch;
     updatedMatches[destMatchIndex] = destMatch;
-
     setMatches(updatedMatches);
 
-    // Persist both matches if they differ
     await fetch("/api/matches", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -133,7 +129,6 @@ export default function Admin() {
         ⚙️ Panel de Administración
       </h1>
 
-      {/* Crear partidos aleatorios */}
       <div className="bg-gray-800 rounded-2xl shadow-lg p-6 mb-8 max-w-2xl mx-auto">
         <h2 className="text-xl font-semibold mb-4 text-white">
           🎲 Crear Partidos Aleatorios
@@ -169,6 +164,7 @@ export default function Admin() {
                 <span className="absolute bottom-3 right-4 text-sm text-gray-400">
                   {formatDate(match.date)}
                 </span>
+
                 <div className="flex justify-between w-full items-center mb-3">
                   <h2 className="font-semibold text-lg text-white">
                     Partido #{match.id}
@@ -182,56 +178,56 @@ export default function Admin() {
                 </div>
 
                 <div className="flex flex-col gap-3 w-full">
-                  {["team1", "team2"].map((team, tIndex) => (
-                    <Droppable
+                  {["team1", "team2"].map((team) => (
+                    <div
                       key={`${match.id}-${team}`}
-                      droppableId={`match-${match.id}-${team}-${tIndex}`}
+                      className="p-3 border-2 rounded-xl border-gray-600 bg-gray-700/40"
                     >
-                      {(provided) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.droppableProps}
-                          className="p-3 border-2 border-gray-600 rounded-xl min-h-[70px] flex flex-col gap-2"
-                        >
-                          {[1, 2].map((num, i) => {
-                            const playerKey = `${team}_player${num}` as keyof Match;
-                            const player = match[playerKey];
-                            const droppableId = `match-${match.id}-${team}-${i}`;
-                            return (
-                              <Droppable
-                                key={droppableId}
-                                droppableId={droppableId}
+                      {[0, 1].map((i) => {
+                        const playerKey = `${team}_player${i + 1}` as PlayerKey;
+                        const player = match[playerKey];
+
+                        return (
+                          <Droppable
+                            droppableId={`${match.id}-${team}-${i}`}
+                            key={`${match.id}-${team}-${i}`}
+                          >
+                            {(provided, snapshot) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.droppableProps}
+                                className={`rounded-md p-1 transition ${
+                                  snapshot.isDraggingOver
+                                    ? "bg-yellow-500/60"
+                                    : ""
+                                }`}
                               >
-                                {(innerProvided) => (
-                                  <div
-                                    ref={innerProvided.innerRef}
-                                    {...innerProvided.droppableProps}
-                                  >
-                                    <Draggable
-                                      draggableId={droppableId}
-                                      index={0}
+                                <Draggable
+                                  draggableId={`${match.id}-${team}-${i}`}
+                                  index={i}
+                                >
+                                  {(dragProvided, dragSnapshot) => (
+                                    <div
+                                      ref={dragProvided.innerRef}
+                                      {...dragProvided.draggableProps}
+                                      {...dragProvided.dragHandleProps}
+                                      className={`p-2 text-center font-medium cursor-grab rounded-md transition select-none ${
+                                        dragSnapshot.isDragging
+                                          ? "bg-blue-500 text-white scale-105 shadow-lg"
+                                          : "bg-gray-700 text-white"
+                                      }`}
                                     >
-                                      {(dragProvided) => (
-                                        <div
-                                          ref={dragProvided.innerRef}
-                                          {...dragProvided.draggableProps}
-                                          {...dragProvided.dragHandleProps}
-                                          className="bg-gray-700 text-white p-2 rounded-md text-center cursor-move select-none"
-                                        >
-                                          {player}
-                                        </div>
-                                      )}
-                                    </Draggable>
-                                    {innerProvided.placeholder}
-                                  </div>
-                                )}
-                              </Droppable>
-                            );
-                          })}
-                          {provided.placeholder}
-                        </div>
-                      )}
-                    </Droppable>
+                                      {player}
+                                    </div>
+                                  )}
+                                </Draggable>
+                                {provided.placeholder}
+                              </div>
+                            )}
+                          </Droppable>
+                        );
+                      })}
+                    </div>
                   ))}
                 </div>
               </div>
