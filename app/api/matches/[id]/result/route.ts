@@ -18,17 +18,17 @@ export async function POST(
     let count_set1 = 0; let count_set2 = 0; let winner_team = 0;
     if (sets1_1 > sets2_1) {
       count_set1++;
-    } else {
+    } else if (sets1_1 < sets2_1) {
       count_set2++;
     }
     if (sets1_2 > sets2_2) {
       count_set1++;
-    } else {
+    } else if (sets1_2 < sets2_2) {
       count_set2++;
     }
     if (sets1_3 > sets2_3) {
       count_set1++;
-    } else {
+    } else if (sets1_3 < sets2_3) {
       count_set2++;
     }
 
