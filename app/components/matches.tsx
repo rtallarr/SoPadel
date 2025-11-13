@@ -42,7 +42,7 @@ export default function Matches({ endpoint, title }: Props) {
       const data = await res.json();
       setMatches(data);
     })();
-  }, []);
+  }, [endpoint]);
 
   const formatTime = (dateString?: string) => {
     if (!dateString) return "";

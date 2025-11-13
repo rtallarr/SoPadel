@@ -102,7 +102,7 @@ export default function StatisticsPage() {
           <ul className="list-disc list-inside">
             {topByWinRate.map(({ player, wins, total, winRate }) => (
               <li key={player}>
-                {player}: {wins}/{total} victorias ({winRate.toFixed(1)}%)
+                {player}: <strong>{winRate.toFixed(1)}%</strong> {/* {wins}/{total} victorias */}
               </li>
             ))}
           </ul>
