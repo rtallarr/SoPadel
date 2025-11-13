@@ -36,7 +36,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Schedule times
     const tue = getTuesdayOfWeek();
     const times = [0, 45];
 

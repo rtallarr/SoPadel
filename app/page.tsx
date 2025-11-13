@@ -51,9 +51,7 @@ export default function Home() {
   // Group matches by day
   const groupedByDay = matches.reduce((groups, match) => {
     if (!match.date) return groups;
-    const d = new Date(match.date);
-    const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
-    const dayKey = local.toISOString().split("T")[0];
+    const dayKey = new Date(match.date).toISOString().split("T")[0];
     if (!groups[dayKey]) groups[dayKey] = [];
     groups[dayKey].push(match);
     return groups;
