@@ -39,7 +39,7 @@ export default function RootLayout({
               <Home size={20} /> Partidos
             </Link>
             <Link
-              href="/statistics"
+              href="/stats"
               className="hover:text-blue-400 transition-colors flex items-center gap-2 font-medium"
             >
               <BarChart2 size={20} /> Estadísticas
