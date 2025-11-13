@@ -30,7 +30,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <nav className="bg-gray-800 text-white px-8 py-4 flex items-center gap-8 shadow-lg">
-          <h1 className="text-2xl font-bold">🎾 SoPadel</h1>
+          <h1 className="text-2xl font-bold">SoPadel</h1>
           <div className="flex ml-4 gap-8 text-lg items-center">
             <Link
               href="/"
