@@ -21,10 +21,10 @@ type Match = {
 
 type Props = {
   endpoint: string;
-  title: string;
+  name: string;
 };
 
-export default function Matches({ endpoint, title }: Props) {
+export default function Matches({ endpoint, name }: Props) {
   const [matches, setMatches] = useState<Match[]>([]);
   const [modalMatch, setModalMatch] = useState<Match | null>(null);
   const [tempSets, setTempSets] = useState({
@@ -211,13 +211,21 @@ export default function Matches({ endpoint, title }: Props) {
                             </tr>
                           </tbody>
                         </table>
-
-                        <button
-                          onClick={() => openModal(match)}
-                          className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-1 rounded-md transition"
-                        >
-                          Registrar resultado
-                        </button>
+                      {(match.winner_team === null || match.winner_team === undefined) ? (
+                        (name === "home") ? (
+                          <button
+                            onClick={() => openModal(match)}
+                            className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-1 rounded-md transition"
+                          >
+                            Registrar resultado
+                          </button>
+                        ) : (<></>
+                        )
+                      ) : (
+                        <p className="w-full mt-4 text-green-400 text-center font-semibold">
+                          Resultado registrado
+                        </p>
+                      )}
                       </div>
                     );
                   })}

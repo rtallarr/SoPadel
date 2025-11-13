@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <Matches
       endpoint="/api/matches"
-      title="🎾 Partidos de la Semana"
+      name="home"
     />
   );
 }
