@@ -114,10 +114,6 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-900 text-gray-100 p-6">
-      <h1 className="text-3xl font-bold text-center mb-8 text-white">
-        🎾 SoPadel
-      </h1>
-
       {matches.length === 0 ? (
         <p className="text-center text-gray-300">No hay partidos todavía.</p>
       ) : (
@@ -242,41 +238,39 @@ export default function Home() {
               Registrar resultado - Partido #{modalMatch.id}
             </h2>
 
-<div className="grid grid-cols-3 gap-2 text-white mb-4">
-  <div></div>
-  <div className="text-center font-medium">Equipo 1</div>
-  <div className="text-center font-medium">Equipo 2</div>
+            <div className="grid grid-cols-3 gap-2 text-white mb-4">
+              <div></div>
+              <div className="text-center font-medium">Equipo 1</div>
+              <div className="text-center font-medium">Equipo 2</div>
 
-  {[1, 2, 3].map((set) => (
-    <React.Fragment key={set}>
-      <div className="text-center font-medium">Set {set}</div>
-      <input
-        type="number"
-        className="w-full rounded-md p-1 border-blue-500 border-2"
-        value={tempSets[`sets1_${set}` as keyof typeof tempSets]}
-        onChange={(e) =>
-          setTempSets((prev) => ({
-            ...prev,
-            [`sets1_${set}`]: Number(e.target.value),
-          }))
-        }
-      />
-      <input
-        type="number"
-        className="w-full rounded-md p-1 border-blue-500 border-2"
-        value={tempSets[`sets2_${set}` as keyof typeof tempSets]}
-        onChange={(e) =>
-          setTempSets((prev) => ({
-            ...prev,
-            [`sets2_${set}`]: Number(e.target.value),
-          }))
-        }
-      />
-    </React.Fragment>
-  ))}
-</div>
-
-
+              {[1, 2, 3].map((set) => (
+                <React.Fragment key={set}>
+                  <div className="text-center font-medium">Set {set}</div>
+                  <input
+                    type="number"
+                    className="w-full rounded-md p-1 border-blue-500 border-2"
+                    value={tempSets[`sets1_${set}` as keyof typeof tempSets]}
+                    onChange={(e) =>
+                      setTempSets((prev) => ({
+                        ...prev,
+                        [`sets1_${set}`]: Number(e.target.value),
+                      }))
+                    }
+                  />
+                  <input
+                    type="number"
+                    className="w-full rounded-md p-1 border-blue-500 border-2"
+                    value={tempSets[`sets2_${set}` as keyof typeof tempSets]}
+                    onChange={(e) =>
+                      setTempSets((prev) => ({
+                        ...prev,
+                        [`sets2_${set}`]: Number(e.target.value),
+                      }))
+                    }
+                  />
+                </React.Fragment>
+              ))}
+            </div>
             <button
               onClick={handleSubmit}
               className="w-full bg-green-600 hover:bg-green-700 py-2 rounded-md text-white font-semibold transition"
