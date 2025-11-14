@@ -1,22 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-type Match = {
-  id: number;
-  date?: string;
-  team1_player1: string;
-  team1_player2: string;
-  team2_player1: string;
-  team2_player2: string;
-  sets1_1: number;
-  sets2_1: number;
-  sets1_2: number;
-  sets2_2: number;
-  sets1_3: number;
-  sets2_3: number;
-  winner_team?: number | null;
-};
+import { Match } from "../types/match";
 
 export default function StatisticsPage() {
   const [matches, setMatches] = useState<Match[]>([]);
@@ -42,7 +27,7 @@ export default function StatisticsPage() {
   const playerMatches: Record<string, number> = {};
 
   matches.forEach(match => {
-    if (match.winner_team === null) return; // skip matches without a result
+    if (match.winner_team === null) return; // skip matches without a result. Winrate solo considera partidos con resultado
 
     [match.team1_player1, match.team1_player2, match.team2_player1, match.team2_player2].forEach(p => {
       playerMatches[p] = (playerMatches[p] || 0) + 1;

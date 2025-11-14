@@ -1,5 +1,5 @@
 "use client";
-
+import { Match } from "../types/match";
 import { useEffect, useState } from "react";
 import {
   DragDropContext,
@@ -13,15 +13,6 @@ type PlayerKey =
   | "team1_player2"
   | "team2_player1"
   | "team2_player2";
-
-type Match = {
-  id: number;
-  team1_player1: string;
-  team1_player2: string;
-  team2_player1: string;
-  team2_player2: string;
-  date?: string;
-};
 
 export default function Admin() {
   const [matches, setMatches] = useState<Match[]>([]);
