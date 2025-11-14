@@ -24,6 +24,7 @@ export default function StatisticsPage() {
   const matchesRegistered = matches.filter(match => match.winner_team !== null).length;
   
   const playerWins: Record<string, number> = {};
+  const playerTies: Record<string, number> = {};
   const playerMatches: Record<string, number> = {};
 
   matches.forEach(match => {
@@ -40,12 +41,21 @@ export default function StatisticsPage() {
       [match.team2_player1, match.team2_player2].forEach(p => {
         playerWins[p] = (playerWins[p] || 0) + 1;
       });
+    } else if (match.winner_team === 0) {
+      [match.team1_player1, match.team1_player2, match.team2_player1, match.team2_player2].forEach(p => {
+        playerTies[p] = (playerTies[p] || 0) + 1;
+      });
     }
   });
 
   // Top 5 players by total wins
   const topByWins = Object.entries(playerWins)
     .sort(([, winsA], [, winsB]) => winsB - winsA)
+    .slice(0, 5);
+
+  // Top 5 players by total ties
+  const topByTies = Object.entries(playerTies)
+    .sort(([, tieA], [, tieB]) => tieB - tieA)
     .slice(0, 5);
 
   // Top 5 players by win rate
@@ -60,6 +70,7 @@ export default function StatisticsPage() {
 
   //console.log("topByWins", topByWins);
   //console.log("topByWinRate", topByWinRate);
+  console.log("playerties", playerTies, topByTies);
 
   return (
     <main className="min-h-screen bg-gray-900 text-gray-100 p-6">
@@ -72,7 +83,7 @@ export default function StatisticsPage() {
         </div>
 
         <div className="bg-gray-800 p-6 rounded-xl shadow-lg">
-          <h2 className="text-xl font-semibold mb-4">Total de Victorias</h2>
+          <h2 className="text-xl font-semibold mb-4">Los que más ganan</h2>
           <ul className="list-disc list-inside">
             {topByWins.map(([player, wins], i) => (
               <li key={i}>
@@ -81,13 +92,24 @@ export default function StatisticsPage() {
             ))}
           </ul>
         </div>
-
+      
         <div className="bg-gray-800 p-6 rounded-xl shadow-lg mb-6">
           <h2 className="text-xl font-semibold mb-4">Porcentaje de Victorias</h2>
           <ul className="list-disc list-inside">
             {topByWinRate.map(({ player, wins, total, winRate }) => (
               <li key={player}>
                 {player}: <strong>{winRate.toFixed(1)}%</strong> {/* {wins}/{total} victorias */}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="bg-gray-800 p-6 rounded-xl shadow-lg mb-6">
+          <h2 className="text-xl font-semibold mb-4">Los que más empatan</h2>
+          <ul className="list-disc list-inside">
+            {topByTies.map(([player, ties], i) => (
+              <li key={i}>
+                {player}: {ties}
               </li>
             ))}
           </ul>
