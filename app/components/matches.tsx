@@ -131,6 +131,8 @@ export default function Matches({ endpoint, name }: Props) {
                         ? "border-green-500"
                         : match.winner_team === 2
                         ? "border-red-500"
+                        : match.winner_team === 0
+                        ? "border-yellow-400"
                         : "border-blue-500";
 
                     const team2Border =
@@ -138,6 +140,8 @@ export default function Matches({ endpoint, name }: Props) {
                         ? "border-green-500"
                         : match.winner_team === 1
                         ? "border-red-500"
+                        : match.winner_team === 0
+                        ? "border-yellow-400"
                         : "border-blue-500";
 
                     return (
