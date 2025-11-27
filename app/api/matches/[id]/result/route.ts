@@ -38,7 +38,7 @@ export async function POST(
       winner_team = 2;
     }
 
-    await sql`
+    const result = await sql`
       UPDATE matches
       SET 
         sets1_1 = ${sets1_1},
@@ -49,9 +49,10 @@ export async function POST(
         sets2_3 = ${sets2_3},
         winner_team = ${winner_team}
       WHERE id = ${matchId}
+      RETURNING *
     `;
 
-    return NextResponse.json({ message: "Match updated successfully" });
+    return NextResponse.json(result.rows[0]);
   } catch (error) {
     console.error(error);
     return NextResponse.json(
