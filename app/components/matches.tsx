@@ -84,7 +84,7 @@ export default function Matches({ endpoint, name }: Props) {
   const closeModal = () => setModalMatch(null);
 
   const handleSubmit = async () => {
-    console.log(tempSets);
+    //console.log(tempSets);
     if (!modalMatch) return;
 
     const res = await fetch(`/api/matches/${modalMatch.id}/result`, {
@@ -196,15 +196,26 @@ export default function Matches({ endpoint, name }: Props) {
                             </tr>
                           </tbody>
                         </table>
-                      {(match.winner_team === null || match.winner_team === undefined) ? (
-                        (name === "home") ? (
+                      {(name === "home") ? (
+                        (match.winner_team === null || match.winner_team === undefined) ? (
                           <button
                             onClick={() => openModal(match)}
                             className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-1 rounded-md transition"
                           >
                             Registrar resultado
                           </button>
-                        ) : (<></>
+                        ) : (
+                          <>
+                          <p className="w-full mt-4 text-green-400 text-center font-semibold">
+                            Resultado registrado
+                          </p>
+                          <button
+                            onClick={() => openModal(match)}
+                            className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-1 rounded-md transition"
+                          >
+                            Editar
+                          </button>
+                          </>
                         )
                       ) : (
                         <p className="w-full mt-4 text-green-400 text-center font-semibold">
