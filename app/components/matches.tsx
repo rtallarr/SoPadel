@@ -200,8 +200,8 @@ export default function Matches({ endpoint, name }: Props) {
                             </tr>
                           </tbody>
                         </table>
-                      {(name === "home") ? (
-                        (match.winner_team === null || match.winner_team === undefined) ? (
+                      {name === "home" ? (
+                        match.winner_team === null || match.winner_team === undefined ? (
                           <button
                             onClick={() => openModal(match)}
                             className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-1 rounded-md transition"
@@ -210,21 +210,27 @@ export default function Matches({ endpoint, name }: Props) {
                           </button>
                         ) : (
                           <>
-                          <p className="w-full mt-4 text-green-400 text-center font-semibold">
-                            Resultado registrado
-                          </p>
-                          <button
-                            onClick={() => openModal(match)}
-                            className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-1 rounded-md transition"
-                          >
-                            Editar
-                          </button>
+                            <p className="w-full mt-4 text-green-400 text-center font-semibold">
+                              Resultado registrado
+                            </p>
+                            <button
+                              onClick={() => openModal(match)}
+                              className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-1 rounded-md transition"
+                            >
+                              Editar
+                            </button>
                           </>
                         )
                       ) : (
-                        <p className="w-full mt-4 text-green-400 text-center font-semibold">
-                          Resultado registrado
-                        </p>
+                        match.winner_team === null || match.winner_team === undefined ? (
+                          <p className="w-full mt-4 text-red-400 text-center font-semibold">
+                            Resultado desconocido
+                          </p>
+                        ) : (
+                          <p className="w-full mt-4 text-green-400 text-center font-semibold">
+                            Resultado registrado
+                          </p>
+                        )
                       )}
                       </div>
                     );
