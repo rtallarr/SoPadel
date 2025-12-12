@@ -5,12 +5,12 @@ export type Match = {
   team1_player2: string;
   team2_player1: string;
   team2_player2: string;
-  sets1_1: number;
-  sets2_1: number;
-  sets1_2: number;
-  sets2_2: number;
-  sets1_3: number;
-  sets2_3: number;
+  team1_set1: number;
+  team1_set2: number;
+  team1_set3: number;
+  team2_set1: number;
+  team2_set2: number;
+  team2_set3: number;
   winner_team?: number | null;
 };
 

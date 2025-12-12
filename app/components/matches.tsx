@@ -13,12 +13,12 @@ export default function Matches({ endpoint, name }: Props) {
   const [matches, setMatches] = useState<Match[]>([]);
   const [modalMatch, setModalMatch] = useState<Match | null>(null);
   const [tempSets, setTempSets] = useState({
-    sets1_1: 0,
-    sets2_1: 0,
-    sets1_2: 0,
-    sets2_2: 0,
-    sets1_3: 0,
-    sets2_3: 0,
+    team1_set1: 0,
+    team1_set2: 0,
+    team1_set3: 0,
+    team2_set1: 0,
+    team2_set2: 0,
+    team2_set3: 0,
   });
 
   useEffect(() => {
@@ -72,12 +72,12 @@ export default function Matches({ endpoint, name }: Props) {
   const openModal = (match: Match) => {
     setModalMatch(match);
     setTempSets({
-      sets1_1: match.sets1_1,
-      sets2_1: match.sets2_1,
-      sets1_2: match.sets1_2,
-      sets2_2: match.sets2_2,
-      sets1_3: match.sets1_3,
-      sets2_3: match.sets2_3,
+      team1_set1: match.team1_set1,
+      team1_set2: match.team1_set2,
+      team1_set3: match.team1_set3,
+      team2_set1: match.team2_set1,
+      team2_set2: match.team2_set2,
+      team2_set3: match.team2_set3,
     });
   };
 
@@ -186,17 +186,17 @@ export default function Matches({ endpoint, name }: Props) {
                               <td className="font-medium text-blue-400">
                                 Equipo 1
                               </td>
-                              <td>{match.sets1_1}</td>
-                              <td>{match.sets1_2}</td>
-                              <td>{match.sets1_3}</td>
+                              <td>{match.team1_set1}</td>
+                              <td>{match.team1_set2}</td>
+                              <td>{match.team1_set3}</td>
                             </tr>
                             <tr>
                               <td className="font-medium text-red-400">
                                 Equipo 2
                               </td>
-                              <td>{match.sets2_1}</td>
-                              <td>{match.sets2_2}</td>
-                              <td>{match.sets2_3}</td>
+                              <td>{match.team2_set1}</td>
+                              <td>{match.team2_set2}</td>
+                              <td>{match.team2_set3}</td>
                             </tr>
                           </tbody>
                         </table>
@@ -257,39 +257,47 @@ export default function Matches({ endpoint, name }: Props) {
               Registrar resultado - Partido #{modalMatch.id}
             </h2>
 
-            <div className="grid grid-cols-3 gap-2 text-white mb-4">
+            <div className="grid grid-cols-4 gap-3 text-white mb-4">
+              {/* Header row */}
               <div></div>
-              <div className="text-center font-medium">Equipo 1</div>
-              <div className="text-center font-medium">Equipo 2</div>
+              { [1, 2, 3].map((set) => (
+                <div key={`header-${set}`} className="text-center font-medium">
+                  Set {set}
+                </div>
+              ))}
 
-              {[1, 2, 3].map((set) => (
-                <React.Fragment key={set}>
-                  <div className="text-center font-medium">Set {set}</div>
-                  <input
-                    type="number"
-                    className="w-full rounded-md p-1 border-blue-500 border-2"
-                    value={tempSets[`sets1_${set}` as keyof typeof tempSets]}
-                    onChange={(e) =>
-                      setTempSets((prev) => ({
-                        ...prev,
-                        [`sets1_${set}`]: Number(e.target.value),
-                      }))
-                    }
-                  />
-                  <input
-                    type="number"
-                    className="w-full rounded-md p-1 border-blue-500 border-2"
-                    value={tempSets[`sets2_${set}` as keyof typeof tempSets]}
-                    onChange={(e) =>
-                      setTempSets((prev) => ({
-                        ...prev,
-                        [`sets2_${set}`]: Number(e.target.value),
-                      }))
-                    }
-                  />
+              {/* Rows for each team */}
+              {[
+                { key: "team1", label: "Team 1" },
+                { key: "team2", label: "Team 2" },
+              ].map((team) => (
+                <React.Fragment key={team.key}>
+                  {/* Team name cell */}
+                  <div className="text-center font-medium">{team.label}</div>
+
+                  {/* Set inputs for that team */}
+                  {[1, 2, 3].map((set) => {
+                    const field = `${team.key}_set${set}` as keyof typeof tempSets;
+
+                    return (
+                      <input
+                        key={`${team.key}-${set}`}
+                        type="number"
+                        className="w-full rounded-md p-1 border-blue-500 border-2"
+                        value={tempSets[field]}
+                        onChange={(e) =>
+                          setTempSets((prev) => ({
+                            ...prev,
+                            [field]: Number(e.target.value),
+                          }))
+                        }
+                      />
+                    );
+                  })}
                 </React.Fragment>
               ))}
             </div>
+            
             <button
               onClick={handleSubmit}
               className="w-full bg-green-600 hover:bg-green-700 py-2 rounded-md text-white font-semibold transition"
