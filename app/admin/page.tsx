@@ -160,12 +160,12 @@ export default function Admin() {
                   <h2 className="font-semibold text-lg text-white">
                     Partido #{match.id}
                   </h2>
-                  <button
+                  {/* <button
                     className="text-red-400 hover:text-red-500 text-sm"
                     onClick={() => handleDeleteMatch(match.id)}
                   >
                     ✖ Eliminar
-                  </button>
+                  </button> */}
                 </div>
 
                 <div className="flex flex-col gap-3 w-full">
