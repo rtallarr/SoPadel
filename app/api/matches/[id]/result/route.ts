@@ -21,9 +21,9 @@ export async function POST(
     } else if (team1_set1 < team2_set1) {
       count_set2++;
     }
-    if (team1_set2 > sets2_2) {
+    if (team1_set2 > team2_set2) {
       count_set1++;
-    } else if (team1_set2 < sets2_2) {
+    } else if (team1_set2 < team2_set2) {
       count_set2++;
     }
     if (team1_set3 > team2_set3) {
