@@ -111,7 +111,7 @@ export default function Matches({ endpoint, name }: Props) {
           <div key={dayKey} className="mb-10">
             <h2 className="text-xl font-semibold text-white mb-4 text-center">
               📅{" "}
-              {new Date(dayKey).toLocaleDateString("es-CL", {
+              {new Date(dayKey + "T00:00:00").toLocaleDateString("es-CL", {
                 weekday: "long",
                 day: "2-digit",
                 month: "short",
