@@ -30,12 +30,10 @@ export async function POST(req: Request) {
 
     for (const mins of times) {
       const shuffled = shuffle(players);
-      const matchDate = new Date(
-        new Date(tue).toLocaleString("en-US", {
-          timeZone: "America/Santiago",
-        })
-      );
-      matchDate.setHours(19, mins, 0, 0);
+
+      const matchDate = new Date(tue.getTime());
+      matchDate.setUTCHours(22, mins, 0, 0);
+
       for (let i = 0; i + 3 < shuffled.length; i += 4) {
         const [p1, p2, p3, p4] = shuffled.slice(i, i + 4);
 
