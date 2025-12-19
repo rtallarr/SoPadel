@@ -266,10 +266,9 @@ export default function Matches({ endpoint, name }: Props) {
                 </div>
               ))}
 
-              {/* Rows for each team */}
               {[
-                { key: "team1", label: "Team 1" },
-                { key: "team2", label: "Team 2" },
+                { key: "team1", label: "Equipo 1" },
+                { key: "team2", label: "Equipo 2" },
               ].map((team) => (
                 <React.Fragment key={team.key}>
                   {/* Team name cell */}

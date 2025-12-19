@@ -35,7 +35,7 @@ export async function POST(req: Request) {
           timeZone: "America/Santiago",
         })
       );
-      matchDate.setHours(22, mins, 0, 0);
+      matchDate.setHours(19, mins, 0, 0);
       for (let i = 0; i + 3 < shuffled.length; i += 4) {
         const [p1, p2, p3, p4] = shuffled.slice(i, i + 4);
 
