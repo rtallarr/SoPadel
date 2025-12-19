@@ -199,7 +199,7 @@ export default function Matches({ endpoint, name }: Props) {
                               <td>{match.team1_set3}</td>
                             </tr>
                             <tr>
-                              <td className="font-medium text-red-400">
+                              <td className="font-medium text-blue-400">
                                 Equipo 2
                               </td>
                               <td>{match.team2_set1}</td>
