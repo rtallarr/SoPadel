@@ -26,9 +26,19 @@ export default function StatisticsPage() {
   const playerWins: Record<string, number> = {};
   const playerTies: Record<string, number> = {};
   const playerMatches: Record<string, number> = {};
+  const weeksWithMatches = new Set<string>();
 
   matches.forEach(match => {
     if (match.winner_team === null) return; // skip matches without a result. Winrate solo considera partidos con resultado
+
+    const d = new Date(match.date);
+    const temp = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const dayNum = temp.getUTCDay() || 7;
+    temp.setUTCDate(temp.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(temp.getUTCFullYear(), 0, 1));
+    const week = Math.ceil((((temp.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+
+    weeksWithMatches.add(`${temp.getUTCFullYear()}-W${week}`);
 
     [match.team1_player1, match.team1_player2, match.team2_player1, match.team2_player2].forEach(p => {
       playerMatches[p] = (playerMatches[p] || 0) + 1;
@@ -47,6 +57,8 @@ export default function StatisticsPage() {
       });
     }
   });
+
+  const totalWeeksPlayed = weeksWithMatches.size;
 
   // Top 5 players by total wins
   const topByWins = Object.entries(playerWins)
@@ -70,7 +82,7 @@ export default function StatisticsPage() {
 
   //console.log("topByWins", topByWins);
   //console.log("topByWinRate", topByWinRate);
-  console.log("playerties", playerTies, topByTies);
+  //console.log("playerties", playerTies, topByTies);
 
   return (
     <main className="min-h-screen bg-gray-900 text-gray-100 p-6">
@@ -80,6 +92,7 @@ export default function StatisticsPage() {
           <h2 className="text-xl font-semibold mb-4">General</h2>
           <p>Total de partidos: <strong>{totalMatches}</strong></p>
           <p>Partidos con resultados: <strong>{matchesRegistered} ({(matchesRegistered/totalMatches*100).toFixed(1)}%)</strong> </p>
+          <p>Semanas con partidos jugados: <strong>{totalWeeksPlayed}</strong></p>
         </div>
 
         <div className="bg-gray-800 p-6 rounded-xl shadow-lg">

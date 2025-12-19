@@ -1,6 +1,6 @@
 export type Match = {
   id: number;
-  date?: string;
+  date: string;
   team1_player1: string;
   team1_player2: string;
   team2_player1: string;
