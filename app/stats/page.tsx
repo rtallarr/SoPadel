@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Match } from "../types/match";
+import { Spinner } from "@/components/ui/spinner"
 
 export default function StatisticsPage() {
   const [matches, setMatches] = useState<Match[]>([]);
@@ -16,7 +17,17 @@ export default function StatisticsPage() {
     })();
   }, []);
 
-  if (loading) return <p className="text-center text-gray-400 mt-10">Cargando estadísticas...</p>;
+  if (loading)
+    return (
+      <main className="min-h-screen bg-gray-900 text-gray-100 p-6">
+        <div className="flex items-center justify-center gap-3">
+          <Spinner className="size-6" />
+          <p className="text-gray-300">Cargando estadísticas...</p>
+        </div>
+      </main>
+    );
+
+
 
   //general
   const totalMatches = matches.length;
@@ -85,7 +96,7 @@ export default function StatisticsPage() {
   //console.log("playerties", playerTies, topByTies);
 
   return (
-    <main className="min-h-screen bg-gray-900 text-gray-100 p-6">
+    <main className="min-h-screen w-full bg-gray-900 text-gray-100 p-6">
       
       <div className="grid gap-6 md:grid-cols-2">
         <div className="bg-gray-800 p-6 rounded-xl shadow-lg mb-6">

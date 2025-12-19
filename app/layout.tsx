@@ -40,7 +40,7 @@ export default function RootLayout({
             </Link>
             <Link
               href="/stats"
-              className="hover:text-blue-400 transition-colors flex items-center gap-2 font-medium"
+              className="hover:text-blue-400 transition-colors font-medium flex items-center gap-2 "
             >
               <BarChart2 size={20} /> Estadísticas
             </Link>
