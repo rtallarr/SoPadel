@@ -3,6 +3,14 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import { Match } from "../types/match";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 type Props = {
   endpoint: string;
@@ -242,70 +250,67 @@ export default function Matches({ endpoint, name }: Props) {
         ))
       )}
 
-      {/* Modal */}
-      {modalMatch && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-gray-800 p-6 rounded-2xl w-96 relative">
-            <button
-              className="absolute top-3 right-3 text-gray-400 hover:text-white"
-              onClick={closeModal}
-            >
-              ✖
-            </button>
+      <Dialog open={!!modalMatch} onOpenChange={(open) => !open && closeModal()}>
+        <DialogContent className="bg-gray-800 text-white">
+          {modalMatch && (
+            <>
+              <DialogHeader>
+                <DialogTitle>
+                  Registrar resultado - Partido #{modalMatch.id}
+                </DialogTitle>
+                {/* <DialogDescription>
+                  Ingresa los resultados de cada set.
+                </DialogDescription> */}
+              </DialogHeader>
 
-            <h2 className="text-xl font-bold text-white mb-4">
-              Registrar resultado - Partido #{modalMatch.id}
-            </h2>
+              <div className="grid grid-cols-4 gap-3 text-white mb-4 mt-4">
+                <div></div>
+                {[1, 2, 3].map((set) => (
+                  <div key={`header-${set}`} className="text-center font-medium">
+                    Set {set}
+                  </div>
+                ))}
 
-            <div className="grid grid-cols-4 gap-3 text-white mb-4">
-              {/* Header row */}
-              <div></div>
-              { [1, 2, 3].map((set) => (
-                <div key={`header-${set}`} className="text-center font-medium">
-                  Set {set}
-                </div>
-              ))}
+                {[
+                  { key: "team1", label: "Equipo 1" },
+                  { key: "team2", label: "Equipo 2" },
+                ].map((team) => (
+                  <React.Fragment key={team.key}>
+                    <div className="text-center font-medium">{team.label}</div>
 
-              {[
-                { key: "team1", label: "Equipo 1" },
-                { key: "team2", label: "Equipo 2" },
-              ].map((team) => (
-                <React.Fragment key={team.key}>
-                  {/* Team name cell */}
-                  <div className="text-center font-medium">{team.label}</div>
+                    {[1, 2, 3].map((set) => {
+                      const field = `${team.key}_set${set}` as keyof typeof tempSets;
 
-                  {/* Set inputs for that team */}
-                  {[1, 2, 3].map((set) => {
-                    const field = `${team.key}_set${set}` as keyof typeof tempSets;
+                      return (
+                        <input
+                          key={`${team.key}-${set}`}
+                          type="number"
+                          className="w-full rounded-md p-1 border-blue-500 border-2 bg-gray-900"
+                          value={tempSets[field]}
+                          onChange={(e) =>
+                            setTempSets((prev) => ({
+                              ...prev,
+                              [field]: Number(e.target.value),
+                            }))
+                          }
+                        />
+                      );
+                    })}
+                  </React.Fragment>
+                ))}
+              </div>
 
-                    return (
-                      <input
-                        key={`${team.key}-${set}`}
-                        type="number"
-                        className="w-full rounded-md p-1 border-blue-500 border-2"
-                        value={tempSets[field]}
-                        onChange={(e) =>
-                          setTempSets((prev) => ({
-                            ...prev,
-                            [field]: Number(e.target.value),
-                          }))
-                        }
-                      />
-                    );
-                  })}
-                </React.Fragment>
-              ))}
-            </div>
-            
-            <button
-              onClick={handleSubmit}
-              className="w-full bg-green-600 hover:bg-green-700 py-2 rounded-md text-white font-semibold transition"
-            >
-              Guardar
-            </button>
-          </div>
-        </div>
-      )}
+              <button
+                onClick={handleSubmit}
+                className="w-full bg-green-600 hover:bg-green-700 py-2 rounded-md text-white font-semibold transition"
+              >
+                Guardar
+              </button>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
     </main>
   );
 }
