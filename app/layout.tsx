@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Home, BarChart2, Clock } from "lucide-react";
 import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -53,6 +54,7 @@ export default function RootLayout({
           </div>  
         </nav>
         {children}
+        <Analytics />
       </body>
     </html>
   );
