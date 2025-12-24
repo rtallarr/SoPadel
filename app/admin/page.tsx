@@ -1,12 +1,7 @@
 "use client";
 import { Match } from "../types/match";
 import { useEffect, useState } from "react";
-import {
-  DragDropContext,
-  Droppable,
-  Draggable,
-  DropResult,
-} from "@hello-pangea/dnd";
+import { DndContext, DragEndEvent, DragStartEvent, useDraggable, useDroppable, PointerSensor, useSensor, useSensors, DragOverlay } from "@dnd-kit/core";
 
 type PlayerKey =
   | "team1_player1"
@@ -14,9 +9,67 @@ type PlayerKey =
   | "team2_player1"
   | "team2_player2";
 
+function DraggablePlayer({ id, name }: { id: string; name: string }) {
+  const { attributes, listeners, setNodeRef, transform, isDragging } =
+    useDraggable({ id });
+
+  const style = {
+    transform: transform
+      ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
+      : undefined,
+    touchAction: "none",
+    opacity: isDragging ? 0 : 1, // Fixes double render
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}
+      className={`p-2 text-center font-medium rounded-md cursor-grab select-none transition
+        ${isDragging ? "bg-blue-500 text-white scale-105 shadow-lg" : "bg-gray-700 text-white"}
+      `}
+    >
+      {name}
+    </div>
+  );
+}
+
+function DroppableSlot({
+  id,
+  children,
+}: {
+  id: string;
+  children: React.ReactNode;
+}) {
+  const { setNodeRef, isOver } = useDroppable({ id });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`rounded-md p-1 transition ${
+        isOver ? "bg-yellow-500/60" : ""
+      }`}
+    >
+      {children}
+    </div>
+  );
+}
+
+
 export default function Admin() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [playersInput, setPlayersInput] = useState("");
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    })
+  );
 
   const fetchMatches = async () => {
     const res = await fetch("/api/matches");
@@ -53,15 +106,21 @@ export default function Admin() {
     fetchMatches();
   };
 
-  const handleDragEnd = async (result: DropResult) => {
-    if (!result.destination) return;
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(String(event.active.id));
+  };
 
-    const { source, destination } = result;
-    if (source.droppableId === destination.droppableId) return;
+  const handleDragCancel = () => {
+    setActiveId(null);
+  };
 
-    const [sourceMatchId, sourceTeam, sourceNum] =
-      source.droppableId.split("-");
-    const [destMatchId, destTeam, destNum] = destination.droppableId.split("-");
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over) return;
+    if (active.id === over.id) return;
+
+    const [sourceMatchId, sourceTeam, sourceIndex] = String(active.id).split("-");
+    const [destMatchId, destTeam, destIndex] = String(over.id).split("-");
 
     const sourceMatchIndex = matches.findIndex(
       (m) => m.id === Number(sourceMatchId)
@@ -73,14 +132,15 @@ export default function Admin() {
     if (sourceMatchIndex === -1 || destMatchIndex === -1) return;
 
     const updatedMatches = [...matches];
+
     const sourceMatch = { ...updatedMatches[sourceMatchIndex] };
     const destMatch =
       sourceMatchId === destMatchId
         ? sourceMatch
         : { ...updatedMatches[destMatchIndex] };
 
-    const sourceKey = `${sourceTeam}_player${Number(sourceNum) + 1}` as PlayerKey;
-    const destKey = `${destTeam}_player${Number(destNum) + 1}` as PlayerKey;
+    const sourceKey = `${sourceTeam}_player${Number(sourceIndex) + 1}` as PlayerKey;
+    const destKey = `${destTeam}_player${Number(destIndex) + 1}` as PlayerKey;
 
     const temp = sourceMatch[sourceKey];
     sourceMatch[sourceKey] = destMatch[destKey];
@@ -104,6 +164,7 @@ export default function Admin() {
       });
     }
   };
+
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return "";
@@ -145,7 +206,7 @@ export default function Admin() {
       {matches.length === 0 ? (
         <p className="text-center text-gray-300">No hay partidos todavía.</p>
       ) : (
-        <DragDropContext onDragEnd={handleDragEnd}>
+        <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd} onDragCancel={handleDragCancel}>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {matches.map((match) => (
               <div
@@ -178,44 +239,11 @@ export default function Admin() {
                         const playerKey = `${team}_player${i + 1}` as PlayerKey;
                         const player = match[playerKey];
 
+                        const slotId = `${match.id}-${team}-${i}`;
                         return (
-                          <Droppable
-                            droppableId={`${match.id}-${team}-${i}`}
-                            key={`${match.id}-${team}-${i}`}
-                          >
-                            {(provided, snapshot) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.droppableProps}
-                                className={`rounded-md p-1 transition ${
-                                  snapshot.isDraggingOver
-                                    ? "bg-yellow-500/60"
-                                    : ""
-                                }`}
-                              >
-                                <Draggable
-                                  draggableId={`${match.id}-${team}-${i}`}
-                                  index={i}
-                                >
-                                  {(dragProvided, dragSnapshot) => (
-                                    <div
-                                      ref={dragProvided.innerRef}
-                                      {...dragProvided.draggableProps}
-                                      {...dragProvided.dragHandleProps}
-                                      className={`p-2 text-center font-medium cursor-grab rounded-md transition select-none ${
-                                        dragSnapshot.isDragging
-                                          ? "bg-blue-500 text-white scale-105 shadow-lg w-full text-center"
-                                          : "bg-gray-700 text-white"
-                                      }`}
-                                    >
-                                      {player}
-                                    </div>
-                                  )}
-                                </Draggable>
-                                {provided.placeholder}
-                              </div>
-                            )}
-                          </Droppable>
+                          <DroppableSlot id={slotId} key={slotId}>
+                            <DraggablePlayer id={slotId} name={player} />
+                          </DroppableSlot>
                         );
                       })}
                     </div>
@@ -224,7 +252,20 @@ export default function Admin() {
               </div>
             ))}
           </div>
-        </DragDropContext>
+          <DragOverlay>
+            {activeId ? (
+              <div className="p-2 text-center font-medium rounded-md bg-blue-500 text-white shadow-xl scale-105 cursor-grabbing">
+                {(() => {
+                  const [matchId, team, index] = activeId.split("-");
+                  const match = matches.find(m => m.id === Number(matchId));
+                  if (!match) return null;
+                  const key = `${team}_player${Number(index) + 1}` as PlayerKey;
+                  return match[key];
+                })()}
+              </div>
+            ) : null}
+          </DragOverlay>
+        </DndContext>
       )}
     </main>
   );
