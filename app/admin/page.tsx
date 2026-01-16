@@ -84,8 +84,11 @@ export default function Admin() {
   const handleCreateRandomMatches = async () => {
     const players = playersInput
       .split("\n")
-      .map((line) => line.replace(/^\d+\.?-?\s*/, "").trim())
-      .filter(Boolean);
+      .map((line) => line.trim().replace(/^\d+[.\-\s\u200B-\u200D\uFEFF\u2060⁠]*/, "").trim())
+      .filter((line) => line && !line.toLowerCase().startsWith("listado"));
+
+    //console.log("playerInput:", playersInput, "\nparsed players:", players);
+    //console.log(playersInput.split("\n").map((line) => line.replace(/\d+\.?-?/, "")));
 
     await fetch("/api/matches/create/random", {
       method: "POST",
